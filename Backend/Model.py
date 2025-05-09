@@ -11,3 +11,7 @@ class IndexationModel(BaseModel):
     table: str
     column: str
     index_type: str
+
+# Crear un modelo de Pydantic para recibir el 'table_name'
+class TableNameModel(BaseModel):
+    table_name: str

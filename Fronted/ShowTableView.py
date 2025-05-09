@@ -31,12 +31,15 @@ def test_data():
         ]}
 
 
+
     return Tabla
 
 
 class ShowTableView(QWidget):
-    def __init__(self):
+    def __init__(self,parent=None):
         super().__init__()
+        self.parent = parent
+
         self.data_tabla = []
         self.data_index = []
 

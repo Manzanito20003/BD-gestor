@@ -1,0 +1,2 @@
+SELECT * FROM clientes;
+INSERT INTO productos ( nombre, precio)VALUES ('carro 2',10000.00);
