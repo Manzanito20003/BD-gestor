@@ -1,4 +1,9 @@
 /venv
 /env
-.env
+*.env
 /Backend/tools.py
+Backend/.env
+Backend/tools.py
+
+.pytest_cache
+__pycache__/
