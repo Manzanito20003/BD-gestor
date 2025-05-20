@@ -1,6 +1,8 @@
+import time
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDragEnterEvent, QDropEvent
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel, QFileDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel, QFileDialog, QMessageBox
 from Backend.tools import execute_sql
 
 class QuerySQLView(QWidget):
@@ -57,13 +59,22 @@ class QuerySQLView(QWidget):
         """)
 
     def action_execute_button(self):
-        print("Ejecutar consulta SQL")
-        # Aquí puedes implementar la lógica para ejecutar la consulta SQL
-        self.result_output= execute_sql(self.query_input.toPlainText())
-        print("result:",self.result_output)
+
+        # Start time execution
+        start_time = time.time()
+
+        # Execute la consulta SQL
+        result_output= execute_sql(self.query_input.toPlainText())
+
+        # End time execution
+        end_time = time.time()
+        elapsed_ms = (end_time - start_time) * 1000 # ms
+        if result_output is None:
+            QMessageBox.warning(self, "Error", "No se pudo ejecutar la consulta SQL")
+            return
 
         # Cargar los resultados en la tabla de la vista de resultados
-        self.parent.ShowTableView.load_data(self.result_output)
+        self.parent.ShowTableView.load_data(result_output,elapsed_ms)
 
 
 
@@ -122,7 +133,13 @@ class DropArea(QWidget):
     def cargar_manual(self):
         filepath, _ = QFileDialog.getOpenFileName(self, "Seleccionar archivo")
         if filepath:
-            self.label.setText(f"Archivo cargado manualmente:\n{filepath}")
+            file = filepath.split("/")[-1]
+
+            if file.split(".")[-1] != "txt":
+                QMessageBox.warning(self, "Error", "El archivo debe ser un .txt")
+                return
+
+            self.label.setText(f"Archivo cargado manualmente:\n{file}")
             print("Archivo cargado manualmente:", filepath)
 
     def load_sql_from_file(self, path):

@@ -1,2 +1,10 @@
-SELECT * FROM clientes;
-INSERT INTO productos ( nombre, precio)VALUES ('carro 2',10000.00);
+CREATE TABLE clientes2 (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100),
+    correo VARCHAR(100),
+    fecha_registro DATE DEFAULT CURRENT_DATE
+);
+
+INSERT INTO clientes2 (nombre, correo) VALUES ('Ana Torres', 'ana.torres@example.com');
+INSERT INTO clientes2 (nombre, correo) VALUES ('Luis Gómez', 'luis.gomez@example.com');
+INSERT INTO clientes2 (nombre, correo) VALUES ('María Pérez', 'maria.perez@example.com');
