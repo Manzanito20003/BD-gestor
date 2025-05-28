@@ -1,10 +1,10 @@
+import logging
 import time
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton, QLabel, QFileDialog, QMessageBox
-from Backend.tools import execute_sql
-
+from .HttpClient import HttpClient
 class QuerySQLView(QWidget):
     def __init__(self, parent=None):
         super().__init__()
@@ -14,6 +14,8 @@ class QuerySQLView(QWidget):
         self.result_output = None
         self.execute_button = None
         self.initUI()
+
+        self.http=HttpClient()
 
 
 
@@ -59,23 +61,36 @@ class QuerySQLView(QWidget):
         """)
 
     def action_execute_button(self):
+        try:
+            # Obtener la consulta desde el input
+            sql_text = self.query_input.toPlainText().strip()
+            if not sql_text:
+                QMessageBox.warning(self, "Consulta vacía", "Ingrese una consulta SQL antes de ejecutar.")
+                logging.warning("Se intentó ejecutar una consulta vacía.")
+                return
 
-        # Start time execution
-        start_time = time.time()
+            logging.info(f"Consulta enviada: {sql_text}")
+            start_time = time.time()
 
-        # Execute la consulta SQL
-        result_output= execute_sql(self.query_input.toPlainText())
+            # Ejecutar consulta
+            result_output = self.http.make_post_request(sql_text)
 
-        # End time execution
-        end_time = time.time()
-        elapsed_ms = (end_time - start_time) * 1000 # ms
-        if result_output is None:
-            QMessageBox.warning(self, "Error", "No se pudo ejecutar la consulta SQL")
-            return
+            if result_output["status"]!=200:
+                QMessageBox.warning(self, "Error",
+                                    "Al ejecutar la consulta. Probelmas en el servidor.")
+                logging.error(f"La consulta fallo: {result_output['error']}. code:{result_output['status']}")
+                return
 
-        # Cargar los resultados en la tabla de la vista de resultados
-        self.parent.ShowTableView.load_data(result_output,elapsed_ms)
+            # Medir tiempo de ejecución
+            elapsed_ms = (time.time() - start_time) * 1000
+            logging.info(f"Consulta ejecutada en {elapsed_ms:.2f} ms")
 
+            # Mostrar resultado en tabla
+            self.parent.ShowTableView.load_data(result_output, elapsed_ms)
+
+        except Exception as e:
+            logging.exception("Excepción durante la ejecución de consulta SQL:")
+            QMessageBox.critical(self, "Error", f"Error al ejecutar la consulta:\n{str(e)}")
 
 
 class DropArea(QWidget):

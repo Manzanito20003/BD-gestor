@@ -19,7 +19,7 @@ def my_test():
 
     # columnas e índices para las tablas
     columnas = ["id", "fecha", "cliente", "total"]
-    index = ["id_B++", "total_BRIN"]
+    index = ["index_Btree_id", "index_ExteHash_cliente"]
 
     # Diccionario de tablas dentro del esquema "ventas"
     Tablas = {
